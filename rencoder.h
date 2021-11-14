@@ -21,13 +21,26 @@
  | THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                 |
  |____________________________________________________________________________|
  |                                                                            |
- |  Author: Mihai Baneu                           Last modified: 30.Jul.2021  |
+ |  Author: Mihai Baneu                           Last modified: 14.Nov.2021  |
  |                                                                            |
  |___________________________________________________________________________*/
 
- /* initialization */
-void i2c_init();
+#define RENCODER_DIR_CW                   0x01
+#define RENCODER_DIR_CCW                  0x02
 
-/* basic read/write */
-uint16_t i2c_write(uint8_t address, const uint8_t *buffer, uint16_t size);
-uint16_t i2c_read(uint8_t address, uint8_t *buffer, uint16_t size);
+typedef struct rencoder_input_event_t {
+    uint8_t gpio_idr;
+} rencoder_input_event_t;
+
+typedef struct rencoder_output_event_t {
+    uint8_t direction;
+    uint8_t position;
+} rencoder_output_event_t;
+
+extern QueueHandle_t rencoder_input_queue;
+extern QueueHandle_t rencoder_output_queue;
+
+
+void rencoder_init(uint8_t min_position, uint8_t max_position);
+void rencoder_reset();
+void rencoder_run(void *pvParameters);

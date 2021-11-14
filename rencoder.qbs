@@ -25,3 +25,22 @@
  |                                                                            |
  |___________________________________________________________________________*/
  
+ Product {
+    name: "rencoder"
+    type: "lib"
+
+    Depends { name: "stm32" }
+    Depends { name: "freertos" }
+
+    files: [
+        "*.h",
+        "*.c"
+    ]
+
+    Export {
+        Depends { name: "stm32" }
+        Depends { name: "freertos" }
+        stm32.includePaths: [ product.sourceDirectory ]
+        stm32.libraryPaths: [ product.destinationDirectory ]
+    }
+}

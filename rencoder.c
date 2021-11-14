@@ -21,31 +21,63 @@
  | THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                 |
  |____________________________________________________________________________|
  |                                                                            |
- |  Author: Mihai Baneu                           Last modified: 21.Jan.2021  |
+ |  Author: Mihai Baneu                           Last modified: 14.Nov.2021  |
  |                                                                            |
  |___________________________________________________________________________*/
- 
-#pragma once
 
-typedef struct gpio_event_t {
-    uint16_t gpio_idr;
-} gpio_event_t;
+#include "stm32f4xx.h"
+#include "stm32rtos.h"
+#include "queue.h"
+#include "rencoder.h"
 
-/* initialization */
-void gpio_init();
+QueueHandle_t rencoder_input_queue;
+QueueHandle_t rencoder_output_queue;
 
-/* led control */
-void gpio_set_blue_led();
-void gpio_reset_blue_led();
-void gpio_toggle_blue_led();
-void gpio_handle_trigger();
+static uint8_t position;
+static uint8_t state;
+static uint8_t max;
+static uint8_t min;
 
-void gpio_config_control_out();
-void gpio_config_data_out();
-void gpio_config_data_in();
-void gpio_e_high();
-void gpio_e_low();
-void gpio_rs_high();
-void gpio_rs_low();
-void gpio_data_wr(const uint8_t data);
-uint8_t gpio_data_rd();
+void rencoder_init(uint8_t min_position, uint8_t max_position)
+{
+    rencoder_input_queue = xQueueCreate(10, sizeof(rencoder_input_event_t));
+    rencoder_output_queue = xQueueCreate(10, sizeof(rencoder_output_event_t));
+    min = min_position;
+    max = max_position;
+    rencoder_reset();
+}
+
+void rencoder_reset()
+{
+    position = 0;
+    state = 0;
+}
+
+void rencoder_run(void *pvParameters)
+{
+    (void)pvParameters;
+    rencoder_input_event_t input_event;
+    rencoder_output_event_t output_event;
+
+    for (;;) {
+        if (xQueueReceive(rencoder_input_queue, &input_event, portMAX_DELAY) == pdPASS) {
+            state = (state << 2) + input_event.gpio_idr;
+
+            if (state == 0b01001011) {
+                if (position > min) {
+                    position--;
+                    output_event.direction = RENCODER_DIR_CCW;
+                    output_event.position = position;
+                    xQueueSendToBack(rencoder_output_queue, &output_event, (TickType_t) 1);
+                }
+            } else if (state == 0b10000111) {
+                if (position < max) {
+                    position++;
+                    output_event.direction = RENCODER_DIR_CW;
+                    output_event.position = position;
+                    xQueueSendToBack(rencoder_output_queue, &output_event, (TickType_t) 1);
+                }
+            }
+        }
+    }
+}
