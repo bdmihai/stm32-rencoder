@@ -21,31 +21,52 @@
  | THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                 |
  |____________________________________________________________________________|
  |                                                                            |
- |  Author: Mihai Baneu                           Last modified: 21.Jan.2021  |
+ |  Author: Mihai Baneu                           Last modified: 15.May.2020  |
  |                                                                            |
  |___________________________________________________________________________*/
- 
-#pragma once
 
-typedef struct gpio_event_t {
-    uint16_t gpio_idr;
-} gpio_event_t;
+#include "stm32f4xx.h"
+#include "isr.h"
 
-/* initialization */
-void gpio_init();
+void isr_init()
+{
+    /* mask the EXTI lines as interupts */
+    MODIFY_REG(EXTI->IMR, EXTI_IMR_MR0_Msk, EXTI_IMR_MR0);
+    MODIFY_REG(EXTI->IMR, EXTI_IMR_MR1_Msk, EXTI_IMR_MR1);
+    MODIFY_REG(EXTI->IMR, EXTI_IMR_MR2_Msk, EXTI_IMR_MR2);
 
-/* led control */
-void gpio_set_blue_led();
-void gpio_reset_blue_led();
-void gpio_toggle_blue_led();
-void gpio_handle_trigger();
+    /* set rising edge as trigger */
+    MODIFY_REG(EXTI->RTSR, EXTI_RTSR_TR0_Msk, EXTI_RTSR_TR0);
+    MODIFY_REG(EXTI->FTSR, EXTI_FTSR_TR0_Msk, EXTI_FTSR_TR0);
+    MODIFY_REG(EXTI->RTSR, EXTI_RTSR_TR1_Msk, EXTI_RTSR_TR1);
+    MODIFY_REG(EXTI->FTSR, EXTI_FTSR_TR1_Msk, EXTI_FTSR_TR1);
+    MODIFY_REG(EXTI->RTSR, EXTI_RTSR_TR2_Msk, EXTI_RTSR_TR2);
+    MODIFY_REG(EXTI->FTSR, EXTI_FTSR_TR2_Msk, EXTI_FTSR_TR2);
 
-void gpio_config_control_out();
-void gpio_config_data_out();
-void gpio_config_data_in();
-void gpio_e_high();
-void gpio_e_low();
-void gpio_rs_high();
-void gpio_rs_low();
-void gpio_data_wr(const uint8_t data);
-uint8_t gpio_data_rd();
+    /* enable interupt */
+    NVIC_SetPriority(EXTI0_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 11 /* PreemptPriority */, 0 /* SubPriority */));
+    NVIC_SetPriority(EXTI1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 11 /* PreemptPriority */, 0 /* SubPriority */));
+    NVIC_SetPriority(EXTI2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 11 /* PreemptPriority */, 0 /* SubPriority */));
+
+    NVIC_EnableIRQ(EXTI0_IRQn);
+    NVIC_EnableIRQ(EXTI1_IRQn);
+    NVIC_EnableIRQ(EXTI2_IRQn);
+}
+
+void EXTI0_IRQHandler(void)
+{
+  gpio_handle_trigger();
+  SET_BIT(EXTI->PR, EXTI_PR_PR0_Msk);
+}
+
+void EXTI1_IRQHandler(void)
+{
+  gpio_handle_trigger();
+  SET_BIT(EXTI->PR, EXTI_PR_PR1_Msk);
+}
+
+void EXTI2_IRQHandler(void)
+{
+  //gpio_handle_trigger();
+  SET_BIT(EXTI->PR, EXTI_PR_PR2_Msk);
+}
