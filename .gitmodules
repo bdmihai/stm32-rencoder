@@ -28,3 +28,6 @@
 [submodule "source/rencoder"]
 	path = source/rencoder
 	url = https://github.com/bdmihai/stm32-rencoder
+[submodule "scripts/source/st7066u"]
+	path = scripts/source/st7066u
+	url = https://github.com/bdmihai/stm32-st7066u
