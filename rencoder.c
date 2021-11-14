@@ -61,20 +61,34 @@ void rencoder_run(void *pvParameters)
 
     for (;;) {
         if (xQueueReceive(rencoder_input_queue, &input_event, portMAX_DELAY) == pdPASS) {
-            state = (state << 2) + input_event.gpio_idr;
+            if (input_event.type == rencoder_input_rotation) {
+                state = (state << 2) + input_event.gpio;
 
-            if (state == 0b01001011) {
-                if (position > min) {
-                    position--;
-                    output_event.direction = RENCODER_DIR_CCW;
-                    output_event.position = position;
-                    xQueueSendToBack(rencoder_output_queue, &output_event, (TickType_t) 1);
+                if (state == 0b01001011) {
+                    if (position > min) {
+                        position--;
+                        output_event.type = rencoder_output_rotation;
+                        output_event.direction = RENCODER_DIR_CCW;
+                        output_event.position = position;
+                        xQueueSendToBack(rencoder_output_queue, &output_event, (TickType_t) 1);
+                    }
+                } else if (state == 0b10000111) {
+                    if (position < max) {
+                        position++;
+                        output_event.type = rencoder_output_rotation;
+                        output_event.direction = RENCODER_DIR_CW;
+                        output_event.position = position;
+                        xQueueSendToBack(rencoder_output_queue, &output_event, (TickType_t) 1);
+                    }
                 }
-            } else if (state == 0b10000111) {
-                if (position < max) {
-                    position++;
-                    output_event.direction = RENCODER_DIR_CW;
-                    output_event.position = position;
+            } else if (input_event.type == rencoder_input_key) {
+                if (input_event.gpio) {
+                    output_event.type = rencoder_output_key;
+                    output_event.key = RENCODER_KEY_RELEASED;
+                    xQueueSendToBack(rencoder_output_queue, &output_event, (TickType_t) 1);
+                } else {
+                    output_event.type = rencoder_output_key;
+                    output_event.key = RENCODER_KEY_PRESSED;
                     xQueueSendToBack(rencoder_output_queue, &output_event, (TickType_t) 1);
                 }
             }

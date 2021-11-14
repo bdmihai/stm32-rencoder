@@ -28,13 +28,33 @@
 #define RENCODER_DIR_CW                   0x01
 #define RENCODER_DIR_CCW                  0x02
 
+#define RENCODER_KEY_PRESSED              0x01
+#define RENCODER_KEY_RELEASED             0x02
+
+typedef enum rencoder_input_type_t {
+    rencoder_input_rotation = 1,
+    rencoder_input_key = 2
+} rencoder_input_type_t;
+
+typedef enum rencoder_output_type_t {
+    rencoder_output_rotation = 1,
+    rencoder_output_key = 2
+} rencoder_output_type_t;
+
 typedef struct rencoder_input_event_t {
-    uint8_t gpio_idr;
+    rencoder_input_type_t type;
+    uint8_t gpio;
 } rencoder_input_event_t;
 
 typedef struct rencoder_output_event_t {
-    uint8_t direction;
-    uint8_t position;
+    rencoder_output_type_t type;
+    union {
+        struct {
+            uint8_t direction;
+            uint8_t position;
+        };
+        uint8_t key;
+    };
 } rencoder_output_event_t;
 
 extern QueueHandle_t rencoder_input_queue;
