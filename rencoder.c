@@ -1,6 +1,6 @@
 /*_____________________________________________________________________________
  │                                                                            |
- │ COPYRIGHT (C) 2021 Mihai Baneu                                             |
+ │ COPYRIGHT (C) 2022 Mihai Baneu                                             |
  │                                                                            |
  | Permission is hereby  granted,  free of charge,  to any person obtaining a |
  | copy of this software and associated documentation files (the "Software"), |
@@ -21,7 +21,7 @@
  | THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                 |
  |____________________________________________________________________________|
  |                                                                            |
- |  Author: Mihai Baneu                           Last modified: 14.Nov.2021  |
+ |  Author: Mihai Baneu                           Last modified: 05.Oct.2022  |
  |                                                                            |
  |___________________________________________________________________________*/
 
@@ -49,7 +49,7 @@ void rencoder_init(uint8_t min_position, uint8_t max_position)
 
 void rencoder_reset()
 {
-    position = 0;
+    position = min;
     state = 0;
 }
 
