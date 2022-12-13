@@ -25,6 +25,12 @@
  |                                                                            |
  |___________________________________________________________________________*/
 
+#pragma once
+
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
 #define RENCODER_DIR_CW                   0x01
 #define RENCODER_DIR_CCW                  0x02
 
@@ -64,3 +70,7 @@ extern QueueHandle_t rencoder_output_queue;
 void rencoder_init(uint8_t min_position, uint8_t max_position);
 void rencoder_reset();
 void rencoder_run(void *pvParameters);
+
+#ifdef __cplusplus
+    }
+#endif
