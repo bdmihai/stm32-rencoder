@@ -19,28 +19,28 @@
  | CLAIM, DAMAGES OR OTHER LIABILITY,  WHETHER IN AN ACTION OF CONTRACT, TORT |
  | OR OTHERWISE, ARISING FROM,  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR  |
  | THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                 |
- |____________________________________________________________________________|
+ |____________________________________________________________________________|*.c
  |                                                                            |
  |  Author: Mihai Baneu                           Last modified: 09.Oct.2021  |
  |                                                                            |
  |___________________________________________________________________________*/
  
  Product {
-    name: "rencoder"
-    type: "lib"
+    name: 'rencoder'
+    type: 'lib'
 
-    Depends { name: "stm32" }
-    Depends { name: "freertos" }
+    Depends { name: 'stm32' }
+    Depends { name: 'freertos' }
 
     files: [
-        "*.h",
-        "*.c"
+        '*.h',
+        '*.c'
     ]
 
     Export {
-        Depends { name: "stm32" }
-        Depends { name: "freertos" }
-        stm32.includePaths: exportingProduct.sourceDirectory
-        stm32.libraryPaths: exportingProduct.destinationDirectory
+        Depends { name: 'stm32' }
+        Depends { name: 'freertos' }
+        stm32.includePaths: [ exportingProduct.sourceDirectory ]
+        stm32.libraryPaths: [ exportingProduct.destinationDirectory ]
     }
 }
